@@ -1,0 +1,142 @@
+一、Spring部分
+1. Spring 的含义：
+Spring 在不同的场景中表示不同的含义。早期的时候它被用来指代Spring Framework项目本身，这也是它一开始的含义。随着时间的推移，在Spring Framework之上建立了其他Spring项目，比如SpringSecurity、SpringBoot、SpringCloud。大部分情况下，当人们聊到Spring时，他们所说的 Spring 是 Spring 整个家族。
+Spring 是一个轻量级的开源框架，是为解决企业应用开发的复杂性而创建的。而在我的理解中，Spring 的主要就解决了两件事情（当然它还解决了数据访问、远程调用、单元测试等问题），分别对应 Spring 的两个设计思想 IOC 和 AOP：
+IOC 容器（解耦合）：解决各种 new 对象的问题
+AOP （切面编程）：把非业务范畴的功能，提取成一个切面，统一实现
+2. 核心特性（Core）
+IoC 容器（IoC Container）
+Spring 事件（Events）
+资源管理（Resources）
+国际化（i18n）
+校验（Validation）
+数据绑定（Data Binding）
+类型转换（Type Conversion）
+Spring 表达式（Spring Express Language）
+面向切面编程（AOP）
+3. IOC
+3.1 什么是IOC？
+IOC 全称为 Inversion of Control，翻译为 “控制反转”，说白了，IOC 就是由 Spring IOC 容器来负责对象的生命周期和对象之间的关系。
+所谓控制：就是对象的创建、初始化、销毁。
+创建对象：原来是 new 一个，现在是由 Spring 容器创建。
+初始化对象：原来是对象自己通过构造器或者 setter 方法给依赖的对象赋值，现在是由 Spring 容器自动注入。
+销毁对象：原来是直接给对象赋值 null 或做一些销毁操作，现在是 Spring 容器管理生命周期负责销毁对象。
+所谓反转：
+其实是反转的控制权，前面提到是由 Spring 来控制对象的生命周期，那么对象的控制就完全脱离了我们的控制，控制权交给了 Spring 。这个反转是指：我们由对象的控制者变成了 IOC 的被动控制者。
+总结：IOC 解决了繁琐的对象生命周期的操作，解耦了我们的代码。
+3.2 IOC 能做什么？
+IOC 容器完美解决了耦合问题，甚至可以让互不相关的对象产生注入关系。
+在 IOC 模式下，你只需要设计良好的流程和依赖，定义出需要什么，然后把控制权交给 Spring 即可。
+
+3.3 IOC、DI、DL的区别
+DI和DL：即依赖注入和依赖查找。
+
+我们常说IOC和DI，却忽略了DL，其实后两者都是IOC的具体实现，在Spring中主要运用到的是DI，但并不代表没有DL(依赖查找)。例如我们刚学Spring时写的测试程序。
+
+依赖注入主要分为 手动模式 和 自动模式
+
+手动模式：XML 资源配置元信息，Java 注解配置元信息，API 配置元信息
+
+
+自动装配的局限性和缺点：
+通过 property 和 constructor-arg 进行依赖设定，这种显式的设定始终会覆盖自动装配。你不能自动装配简单的属性，例如基本类型，Strings ，和 Classes （以及这些简单属性的数组）。这种限制是由设计造成的。
+自动装配不如显示装配精确。如前表所述，尽量小心让Spring避免去猜测模棱两可的事情（知秋注：比如两个相同类型的bean，也没有其他特殊指定，Spring不知道该选择哪个来进行注入操作），以免产生意想不到的结果。如果你不仔细，你的Spring所管理对象之间的关系不再明确。
+装配信息可能对从Spring容器中生成文档的工具不可用。
+容器内的多个bean definition可能与要自动装配的setter方法或构造函数参数指明的类型匹配。对于数组，集合，或者 Map 实例，这就不是什么问题了。然而，对于期望单值的依赖项来说，这种歧义性不能随意的解决。如果没有唯一的bean可用，将抛出一个异常。
+总结：IOC 是一种设计思想。从 IOC 到 DI 和 DL ，就是从理论到实践。程序把依赖交给容器，容器帮你管理依赖，这就是依赖注入的核心。依赖注入降低了开发的成本，提高了代码复用率、软件的灵活性
+
+4. Spring常见注解：
+@Autowired
+自动导入对象到类中，被注入进的类同样要被 Spring 容器管理比如：Service 类注入到 Controller 类中。
+@Autowired和@Inject、@Resource，可以与@Qualifier或者@Name配合使用，防止多实例注入时出错，以及值注入@Value。
+注解	解析	用法
+@Autowired	通过AutowiredAnnotationBeanPostProcessor类实现的依赖注入，默认是根据类型进行注入的，因此如果有多个类型一样的Bean候选者，则需要限定其中一个候选者，否则将抛出异常。	可注释在字段上,在方法上
+@Inject	作用与@Autowired一样	可注释在字段上,在方法上、构造器上
+@Resource	默认按照名称进行装配，名称可以通过name属性进行指定	可注释在字段上,在方法上
+@Qualifier	限定描述符除了能根据名字进行注入，更能进行更细粒度的控制如何选择候选者，可与@Autowired或者@Inject进行组合使用，进行精确注入	可注释字段上,在方法上、参数上以及注解中
+
+@Scope作用域和生命周期
+@Scope 声明 Spring Bean 的作用域 ，四种常见的 Spring Bean 的作用域：
+singleton : 唯一 bean 实例，Spring 中的 bean 默认都是单例的。
+prototype : 每次请求都会创建一个新的 bean 实例。
+request : 每一次 HTTP 请求都会产生一个新的 bean，该 bean 仅在当前 HTTP request 内有效。
+session : 每一次 HTTP 请求都会产生一个新的 bean，该 bean 仅在当前 HTTP session 内有效。
+具有4个作用域，以及生命周期过程处理@PostConstruct、@PreDestroy 。
+
+注解	解析	用法
+@Scope	具有4个作用域singleton,prototype,session,request，默认为singleton单例模式	可注释在Class创建时
+@PostConstruct	相当于init-method,使用在方法上，当Bean初始化时执行	可注释在方法上
+@PreDestroy	相当于destory-method，使用在方法上，当Bean销毁时执行	可注释在方法上
+@Component,@Repository,@Service, @Controller
+@component，而其余 @Controller、@Service、@Repository都组合了@component注解，主要为便于使用者Class组件进行归类。默认加载IOC容器中的组件，容器启动会调用无参构造器创建对象，再进行初始化赋值等操作
+
+注解	解析	用法
+@Component	组件注解，使用了该注解会基于注释的配置和类路径扫描时,会自动扫描并加载Class到ICO容器中	注释在类上
+@Controller	应用在MVC层（控制层）DispatcherServlet会自动扫描注解了此注解的类，然后将web请求映射到注解了@RequestMapping的方法上	注释在类上
+@Service	对应服务层，主要涉及一些复杂的逻辑，应用在service层（业务逻辑层）	注释在类上
+@Repository	对应持久层即 Dao 层，主要用于数据库相关操作，应用在dao层（数据访问层）	注释在类上
+@Configuration
+一般用来声明配置类，可以使用 @Component注解替代，不过使用Configuration注解声明配置类更加语义化。 主要区别在于Configuration在Spring加载的时候，会被CGLib代理，里面的@Bean不会出现重复实例化
+二、SpringMVC部分
+1. SpringMVC的含义
+概念：SpringMVC是Spring框架中的一个分支，是基于Java实现MVC的轻量级Web框架
+核心：Spring的web框架围绕DispatcherServlet [ 调度Servlet ] 设计的。
+总结： SpringMVC 本质上还是在使用Servlet处理，并在其基础上进行了封装简化了开发流程，提高易用性、并使用程序逻辑结构变得更清晰
+2.SpringMVC的执行流程
+
+3. SpringMVC常见注解
+@RequestMapping 处理常见的 HTTP 请求类型
+5 种常见的请求类型:
+GET ：请求从服务器获取特定资源。举个例子：GET /users（获取所有用户）
+POST ：在服务器上创建一个新的资源。举个例子：POST /users（创建用户）
+PUT ：更新服务器上的资源（客户端提供更新后的整个资源）。举个例子：PUT /users/12（更新编号为 12 的用户）
+DELETE ：从服务器删除特定的资源。举个例子：DELETE /users/12（删除编号为 12 的用户）
+PATCH ：更新服务器上的资源（客户端提供更改的属性，可以看做作是部分更新），使用的比较少。
+注解	解析
+@GetMapping	@GetMapping("users") 等价于@RequestMapping(value="/users",method=RequestMethod.GET)
+@PostMapping	@PostMapping("users") 等价于@RequestMapping(value="/users",method=RequestMethod.POST)
+@PutMapping	@PutMapping("/users/{userId}") 等价于@RequestMapping(value="/users/{userId}",method=RequestMethod.PUT)
+@DeleteMapping	@DeleteMapping("/users/{userId}")等价于@RequestMapping(value="/users/{userId}",method=RequestMethod.DELETE)
+前后端传值@PathVariable 和 @RequestParam
+@PathVariable用于获取路径参数，@RequestParam用于获取查询参数。
+@RequestBody
+用于读取 Request 请求（可能是 POST,PUT,DELETE,GET 请求）的 body 部分并且Content-Type 为 application/json 格式的数据，接收到数据之后会自动将数据绑定到 Java 对象上去。系统会使用HttpMessageConverter或者自定义的HttpMessageConverter将请求的 body 中的 json 字符串转换为 java 对象。
+@RestController
+@ResponseBody 注解的作用是将controller的方法返回的对象通过适当的转换器转换为指定的格式之后，写入到response对象的body区，通常用来返回JSON数据或者是XML数据，常见于前后端分离项目。
+而@RestController注解是@Controller和@ResponseBody的合集,表示这是个控制器 bean,并且是将函数的返回值直 接填入 HTTP 响应体中,是 REST 风格的控制器。
+JSR303 一套JavaBean参数校验的标准
+它定义了很多常用的校验注解 一些常用的字段验证的注解
+@NotEmpty 被注释的字符串的不能为 null 也不能为空
+@NotBlank 被注释的字符串非 null，并且必须包含一个非空白字符
+@Null 被注释的元素必须为 null
+@NotNull 被注释的元素必须不为 null
+@AssertTrue 被注释的元素必须为 true
+@AssertFalse 被注释的元素必须为 false
+@Pattern(regex=,flag=)被注释的元素必须符合指定的正则表达式
+@Email 被注释的元素必须是 Email 格式。
+@Min(value)被注释的元素必须是一个数字，其值必须大于等于指定的最小值
+@Max(value)被注释的元素必须是一个数字，其值必须小于等于指定的最大值
+@DecimalMin(value)被注释的元素必须是一个数字，其值必须大于等于指定的最小值
+@DecimalMax(value) 被注释的元素必须是一个数字，其值必须小于等于指定的最大值
+@Size(max=, min=)被注释的元素的大小必须在指定的范围内
+三、mybatis部分
+1. mybatis的含义
+MyBatis 的前身是 iBatis，iBatis是 Apache 软件基金会下的一个开源项目。2010 年该项目从Apache 基金会迁出，并改名为MyBatis。同期，iBatis停止维护。 MyBatis是一种半自动化的Java持久层框架，其通过注解或XML 的方式将对象和SQL 关联起来。之所以说它是半自动的，是因为和Hibernate 等一些可自动生成SQL的ORM框架相比，使用MyBatis需要用户自行维护SQL，维护SQL 的工作比较繁琐，但也有好处。比如我们可控制SQL逻辑，可对其进行优化，以提高效率。
+2. mybatis的核心部分
+2.1 MyBatis配置XML文件的层次结构
+properties是一个配置属性的元素，让我们能在配置文件的上下文中使用它。
+别名(typeAliases) 是一个指代的名称。因为我们遇到的类全限定名过长，所以我们希望用一个简短的名称去指代它，而这个名称可以在MyBatis 上下文中使用。
+mappers常见有如下几种方法引入映射器
+文件路径引入
+包名引入
+类注册引入
+2.2 MyBatis的映射器
+常见元素如下：
+constructor：constructor主要是用来配置构造方法，默认情况下mybatis会调用实体类的无参构造方法创建一个实体类，然后再给各个属性赋值，但是有的时候我们可能为实体类生成了有参的构造方法，并且也没有给该实体类生成无参的构造方法，这个时候如果不做特殊配置，resultMap在生成实体类的时候就会报错，因为它没有找到无参构造方法。
+association 和 collection：是mybatis支持级联的一部分，我们知道在级联中有一对一、一对多、多对多等关系，association主要是用来解决一对一关系的，collection主要是用来解决一对多关系的
+3.Mybatis中的Dao接口和XML文件里的SQL是如何建立关系的？
+解析XML： 初始化SqlSessionFactoryBean会将mapperLocations路径下所有的XML文件进行解析
+创建SqlSource： Mybatis会把每个SQL标签封装成SqlSource对象，可以为动态SQL和静态SQL
+创建MappedStatement： XML文件中的每一个SQL标签就对应一个MappedStatement对象 ，并由 Configuration解析XML
+Dao接口代理： Spring中的FactoryBean 和 JDK动态代理返回了可以注入的一个Dao接口的代理对象
+执行： 通过statement全限定类型+方法名拿到MappedStatement 对象，然后通过执行器Executor去执行具体SQL
